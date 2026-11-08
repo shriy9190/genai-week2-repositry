@@ -1,0 +1,54 @@
+You are an expert mobile frontend and full-stack software engineer.
+
+Build the complete codebase for **Bill Book** (Project 7), an offline point-of-sale and invoicing mobile web application/PWA designed for small shop owners. It must run 100% offline (in Flight Mode), store inventory and past bills locally, generate accurate dynamic UPI QR payment codes, and export receipt cards ready to share on WhatsApp.
+
+---
+
+### Environmental & Platform Constraints
+- Runs entirely in the mobile browser or as an installable PWA / Android WebView app.
+- **Flight Mode / 100% Offline**: All bill generation, calculations, and data persistence must function with zero network connection.
+- **Client-Side QR Generation**: QR codes must be rendered strictly in browser memory via a canvas/SVG library (e.g., standard `qrcode.js` or `qr-code-styling` bundled locally).
+- **Zero Login / Zero Tracking**: No authentication, cloud databases, or external APIs.
+
+---
+
+### Core Architecture & Features
+
+#### 1. Shop Profile & Inventory Catalog
+- **Shop Profile Setup**: Editable store name (e.g., "Sharma Stores"), address/phone line, and shopkeeper UPI ID (e.g., `shopkeeper@upi`).
+- **Product Catalog Management**:
+  - Add, edit, and delete products with Item Name, Default Unit (kg, L, pcs), and Unit Price (₹).
+  - Pre-load standard starter items (e.g., Rice 2 kg - ₹120, Oil 1 L - ₹165, Atta 5 kg - ₹210).
+
+#### 2. Invoicing & Line Item Calculation Engine
+- Create new bills with dynamic auto-incrementing Bill Numbers (e.g., `#101`, `#102`).
+- Add multiple line items with custom quantity selectors.
+- Configurable **Discount** (percentage or flat ₹) and **Tax/GST** (5%, 12%, 18%, or custom flat rate).
+- Real-time arithmetic computation:
+  $$\text{Subtotal} = \sum (\text{Price} \times \text{Quantity})$$
+  $$\text{Total} = \text{Subtotal} - \text{Discount} + \text{Tax}$$
+- Arithmetic must match manual hand calculations down to the exact rupee on all 5 sample test bills.
+
+#### 3. Dynamic UPI Payment QR Code
+- Generates a valid UPI deep-link URL:
+  `upi://pay?pa={UPI_ID}&pn={STORE_NAME}&am={TOTAL_AMOUNT}&cu=INR&tn=Bill_{BILL_NO}`
+- Renders this string dynamically into a scannable QR code on the bill screen.
+- Any UPI app (GPay, PhonePe, Paytm) scanning the QR must parse and display the exact bill amount without requiring a completed transaction.
+
+#### 4. Receipt Image Generation & WhatsApp Share
+- Renders a clean receipt card (Store Name, Bill #, Date/Time, Itemized List, Subtotal, Discount, Tax, Final Total, and UPI QR).
+- Uses client-side canvas rasterization (`html2canvas` or native Canvas API) to export the receipt as a downloadable image (`bill_104.png`).
+- Integrates the Web Share API (`navigator.share`) with fallback to direct WhatsApp sharing (`https://wa.me/?text=...`) to share receipt summaries or image files.
+
+#### 5. Local Storage & Daily History
+- All historical invoices and sales records saved in `localStorage` or `IndexedDB`.
+- **Dashboard Summary**:
+  - Today's Total Revenue (₹) and count of bills issued.
+  - Scrollable list of recent bills showing bill number, total, and timestamp.
+  - Clicking any past bill re-opens the complete invoice.
+- All historical records must survive browser restarts and device reboots in Flight Mode.
+
+---
+
+### Output Requirements
+Deliver a clean, single-file `index.html` (with embedded CSS and modular JavaScript) or a structured mobile app directory, including instructions on how to install and test it in Flight Mode on a real phone.

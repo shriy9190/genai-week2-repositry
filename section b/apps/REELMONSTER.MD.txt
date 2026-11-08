@@ -1,0 +1,71 @@
+You are an expert Android developer and mobile systems engineer.
+
+Build the complete codebase for **Reel Monster** (Project 6), an offline Android application that tracks short-form video consumption using a floating, draggable monster bubble that overlays Instagram and YouTube.
+
+---
+
+### Environmental & Platform Constraints
+- **Platform**: Real Android device (API level 26+).
+- **Toolchain**: Clean Gradle project compatible with JDK 17 and AGP 8.2+.
+- **Zero Internet / Full Privacy**: 
+  - Strictly DO NOT include `android.permission.INTERNET` in `AndroidManifest.xml`.
+  - No user logins, cloud backends, tracking SDKs, or paid APIs.
+  - The application must install and run entirely offline.
+
+---
+
+### Required Features & Architecture
+
+#### 1. Floating Monster Bubble (`OverlayService`)
+- Implemented via `WindowManager` using layout type `TYPE_APPLICATION_OVERLAY` (requires `android.permission.SYSTEM_ALERT_WINDOW`).
+- **Draggable & Snappable**:
+  - Touch listener supporting smooth drag movement across the screen, snapping to the left or right edge on finger release.
+  - Distinctly distinguishes short taps from drag actions.
+- **Visuals & Dynamic Expressions**:
+  - A circular cute monster avatar that dynamically scales up / changes facial expressions as the daily counter rises:
+    - 0–5 reels: Normal cute smile.
+    - 6–15 reels: Smirking, slightly larger.
+    - 16–30 reels: Bloated / chubby with tired eyes.
+    - 31+ reels: Massive overwhelmed monster with sweat drops.
+  - Prominent badge on the avatar showing the live reel count.
+  - Floating comic speech bubble displaying humorous, sarcastic one-liners triggered at milestones (e.g., at 5 reels: *"Yum! Your evening tastes great."*; at 15: *"Burp. Your homework says hi."*; at 30: *"Still scrolling? Your future self is calling."*).
+
+#### 2. Dual Counting Modes (Configurable in Dashboard)
+- **Level 1 (Manual Mode)**:
+  - Tapping the floating monster bubble increments the counter by +1, displays a quick bounce animation, and surfaces a funny dialogue bubble.
+- **Level 2 (Automatic Detection Mode)**:
+  - Implements an Android `AccessibilityService` (`ReelAccessibilityService`).
+  - Listens to scroll events (`TYPE_VIEW_SCROLLED`, `TYPE_WINDOW_CONTENT_CHANGED`) strictly targeted at:
+    - Instagram: `com.instagram.android`
+    - YouTube Shorts: `com.google.android.youtube`
+  - Uses debouncing logic (minimum 1.5–2.0 second cooldown) to prevent duplicate counts during rapid layout shifts or fast scrolling.
+  - Accuracy requirement: Across a continuous test of 20 reels, the recorded count must match within ±2 of manual observation.
+- **Overlay Visibility**:
+  - Dynamically displays the floating bubble when Instagram or YouTube is open in the foreground, with an option to minimize or stay visible across other apps.
+
+#### 3. Persistence & Reboot Resilience (`BootReceiver` & Local Storage)
+- Stores daily counts and history locally using `SharedPreferences` or an offline SQLite database keyed by date (`YYYY-MM-DD`).
+- Implements a `BroadcastReceiver` listening to `android.intent.action.BOOT_COMPLETED` (with permission `RECEIVE_BOOT_COMPLETED`) to ensure today's count survives a device restart and automatically restores the overlay if enabled.
+
+#### 4. Dashboard Activity (`MainActivity`)
+- Clean, offline Material Design dashboard showing:
+  - Today's reel count and calculated time lost (estimated at 45 seconds per reel, e.g., `12 reels • 9m lost`).
+  - Rolling 7-day bar chart / list summary of reels watched.
+  - Mode toggle: **Level 1 (Manual Tap)** vs. **Level 2 (Automatic Detection)**.
+  - Permission setup guides and intent launchers:
+    - "Display over other apps" (`Settings.ACTION_MANAGE_OVERLAY_PERMISSION`).
+    - "Accessibility Service" (`Settings.ACTION_ACCESSIBILITY_SETTINGS`) for Level 2 mode.
+  - Reset / Test button to zero out counts for verification runs.
+
+---
+
+### Output Requirements
+Provide:
+1. `AndroidManifest.xml` with all necessary services, receivers, and permissions.
+2. Complete Kotlin source code:
+   - `MainActivity.kt` and `activity_main.xml`.
+   - `OverlayService.kt` with draggable view handling and speech animations.
+   - `ReelAccessibilityService.kt` with debounced reel-detection logic.
+   - `BootReceiver.kt` and `PreferencesHelper.kt` for local storage.
+3. Minimal `app/build.gradle` and root `build.gradle` configurations compatible with Java 17.
+4. CLI instructions for building the APK using `./gradlew assembleDebug` and installing via `adb install`.
