@@ -1,0 +1,71 @@
+You are an expert browser extension engineer.
+
+Build the complete codebase for **Job Clipper** (Project 10), a Chrome extension (Manifest V3) that lets users save job and internship listings from any website to an interactive local tracking board with one click, edit details, track statuses, set deadline alarms, and export to CSV.
+
+---
+
+### Strict Extension & Environmental Constraints
+- **Manifest Version**: Manifest V3 (`"manifest_version": 3`).
+- **100% Offline & Private**:
+  - Store all applications locally using `chrome.storage.local`.
+  - Zero external analytics, cloud backends, tracking scripts, or paid APIs.
+  - No network egress: all parsing and exports must happen strictly in the browser.
+- **Required Permissions**:
+  - `"storage"`: For saving job cards and board states.
+  - `"activeTab"` & `"scripting"`: For extracting page metadata.
+  - `"alarms"` & `"notifications"`: For scheduled deadline reminders.
+
+---
+
+### Core Architecture & Required Files
+
+Provide the complete code for the following files inside a single extension directory:
+
+#### 1. `manifest.json`
+- Manifest V3 specification with:
+  - `action`: points to `popup.html`.
+  - `background`: service worker script `background.js`.
+  - `permissions`: `["storage", "activeTab", "scripting", "alarms", "notifications"]`.
+  - Standard extension metadata, icons, and options/dashboard page entry.
+
+#### 2. Extraction Engine (`content_script.js` / Injected Parser)
+- Activated on click or popup open to auto-detect:
+  - **Job Title / Role**: Auto-scraped from `h1`, common job class patterns, OpenGraph tags (`og:title`), or `<title>`.
+  - **Company Name**: Detected from common metadata selectors, schema.org JSON-LD microdata (`JobPosting`), or URL domain fallbacks.
+  - **Job URL**: `window.location.href`.
+  - **Application Deadline**: Scans for deadline dates using date regex patterns (`DD/MM/YYYY`, `Month DD, YYYY`, or ISO strings).
+- **Graceful Fallback**: If any field fails auto-detection, populate with sensible placeholders and allow complete manual editing in the UI. Must work reliably across at least 3 distinct platforms (e.g., LinkedIn, Internshala, Indeed).
+
+#### 3. Extension Popup (`popup.html` & `popup.js`)
+- Compact, clean popup that opens when clicking the extension icon:
+  - Pre-filled editable input fields: **Job Title**, **Company**, **URL**, **Deadline Date**, and **Category/Column**.
+  - A `"Save to Board"` button that adds the card to storage.
+  - A `"Open Tracker Board"` button that launches the full-page dashboard in a new tab.
+  - Instant visual confirmation toast: `"Saved to Board!"`.
+
+#### 4. Interactive Tracker Dashboard (`board.html`, `board.css`, `board.js`)
+- Full-page Kanban board interface:
+  - **Four Distinct Columns**:
+    1. `Saved`
+    2. `Applied`
+    3. `Interview`
+    4. `Result` (Offer / Rejected)
+  - **Drag-and-Drop**: HTML5 native drag-and-drop allowing users to move cards between columns, automatically updating their status in `chrome.storage.local`.
+  - **Manual Card Creation & Inline Editing**: Ability to manually add a card without browsing, and edit any field (role, company, notes, deadline) on existing cards.
+  - **Search & Filter Bar**: Real-time fuzzy text search filtering cards by job title or company name.
+  - **CSV Export**: Generates and downloads a clean, properly formatted `job-applications.csv` file (columns: Role, Company, Status, Deadline, URL, Notes) that opens cleanly in any spreadsheet software (Excel, Google Sheets).
+
+#### 5. Background Service Worker & Deadline Alarms (`background.js`)
+- When a job with a valid future deadline is saved:
+  - Registers a Chrome alarm (`chrome.alarms.create`) set to fire 24–48 hours before the deadline.
+  - When the alarm triggers, fires a native system notification (`chrome.notifications.create`) warning the user of the impending deadline.
+
+---
+
+### Done-When Verification Deliverables
+Include a testing section explaining how to:
+1. Load unpacked in Chrome (`chrome://extensions` -> Developer mode).
+2. Test auto-clip on 3 real job boards.
+3. Verify manual editing when auto-detection misses a field.
+4. Manually trigger a deadline alarm test in the background worker.
+5. Export the CSV and open it in a spreadsheet viewer.

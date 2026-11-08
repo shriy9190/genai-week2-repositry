@@ -1,0 +1,64 @@
+You are an expert frontend and browser extension developer.
+
+Build the complete codebase for **Style Spy** (Project 13), a Chrome extension (Manifest V3) that inspects any active website with one click, extracts its computed color palette (ranked by visual usage) and typography styles, enables one-click clipboard copying, manages saved style kits, and exports kits as reusable CSS custom properties (variables).
+
+---
+
+### Environmental & Platform Constraints
+- **Manifest Version**: Manifest V3 (`"manifest_version": 3`).
+- **100% Client-Side & Private**:
+  - No external servers, no tracking, zero remote script execution.
+  - Save extracted kits locally using `chrome.storage.local`.
+- **Permissions**:
+  - `"activeTab"` & `"scripting"`: To inspect computed DOM styles.
+  - `"storage"`: To persist saved kits across Chrome restarts.
+
+---
+
+### Core Architecture & Required Files
+
+Provide the complete code for the following files inside a single extension directory:
+
+#### 1. `manifest.json`
+- Standard Manifest V3 schema:
+  - `action`: points to `popup.html`.
+  - `permissions`: `["activeTab", "scripting", "storage"]`.
+  - Standard extension title, description, and icons.
+
+#### 2. DOM Style Extractor (`extractor.js` / Script Injection)
+- Traverses visible elements on the active page (skipping hidden or zero-dimension nodes):
+  - Uses `window.getComputedStyle(el)` to sample:
+    - Background colors (`backgroundColor`)
+    - Text colors (`color`)
+    - Border colors (`borderColor`)
+    - Font families (`fontFamily`), weights (`fontWeight`), and line heights
+  - **Color Normalization & Ranking**:
+    - Converts RGB/RGBA/HEX strings into uniform HEX codes.
+    - Filters out fully transparent backgrounds (`rgba(0, 0, 0, 0)`).
+    - Aggregates color occurrences weighted by element area or element count, ranking the top 6–8 dominant colors.
+  - **Typography Aggregation**:
+    - Groups unique font families used across headings (`h1`-`h4`) and body copy (`p`, `span`, `div`).
+    - Reports font size scales and weights (e.g., `Inter • 700 heading`, `Lora • 400 body`).
+
+#### 3. Extension UI (`popup.html`, `popup.css`, `popup.js`)
+- Compact, modern interface displaying:
+  - **Colours Section**:
+    - Grid of color swatches showing visual previews and HEX codes.
+    - Ranked by prevalence (Primary, Secondary, Background, Accent).
+    - Clicking any color swatch copies the HEX code to the clipboard and shows a quick `"Copied!"` indicator.
+  - **Fonts Section**:
+    - Visual list of detected font families, separated into headings and body text with their respective weights and sizes.
+    - Clicking copies the `font-family` declaration.
+  - **Action Toolbar**:
+    - `"Copy as CSS Variables"`: Formats the entire palette into a clean `:root { --color-primary: ...; --font-heading: ...; }` block and copies it to clipboard.
+    - `"Save Kit"`: Input field to name the kit (e.g., "Stripe Landing Style") and persist it to `chrome.storage.local`.
+    - `"Saved Kits"` tab/dropdown to view and reload previously saved kits.
+
+---
+
+### Done-When Verification Deliverables
+Include a testing section explaining how to:
+1. Load unpacked in Chrome.
+2. Run on 5 different websites to verify computed color/font extraction.
+3. Close and reopen Chrome to verify that saved kits survive restart.
+4. Copy the CSS variable output, paste it into a blank HTML file, and verify that styles apply correctly.
