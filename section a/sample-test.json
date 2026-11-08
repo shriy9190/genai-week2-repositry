@@ -1,0 +1,69 @@
+{
+  "testTitle": "JEE Advanced & GATE Practice Mock",
+  "durationMinutes": 20,
+  "sections": [
+    {
+      "name": "Physics",
+      "positiveMarks": 4,
+      "negativeMarks": 1,
+      "questions": [
+        {
+          "id": "PHY-01",
+          "text": "A particle moves in a circle of radius 20 cm with a linear speed of 10 m/s. What is its centripetal acceleration?",
+          "options": ["50 m/s²", "200 m/s²", "500 m/s²", "1000 m/s²"],
+          "correctIndex": 2,
+          "explanation": "Centripetal acceleration a = v² / r = (10 m/s)² / (0.20 m) = 100 / 0.20 = 500 m/s²."
+        },
+        {
+          "id": "PHY-02",
+          "text": "What is the dimensional formula for Planck's constant (h)?",
+          "options": ["[M L² T⁻¹]", "[M L² T⁻²]", "[M L T⁻¹]", "[M L³ T⁻²]"],
+          "correctIndex": 0,
+          "explanation": "E = hν => h = E / ν = [M L² T⁻²] / [T⁻¹] = [M L² T⁻¹]."
+        }
+      ]
+    },
+    {
+      "name": "Chemistry",
+      "positiveMarks": 4,
+      "negativeMarks": 1,
+      "questions": [
+        {
+          "id": "CHEM-01",
+          "text": "What is the oxidation state of Chromium in K₂Cr₂O₇?",
+          "options": ["+3", "+4", "+6", "+7"],
+          "correctIndex": 2,
+          "explanation": "2(+1) + 2(Cr) + 7(-2) = 0 => 2 + 2(Cr) - 14 = 0 => 2(Cr) = +12 => Cr = +6."
+        },
+        {
+          "id": "CHEM-02",
+          "text": "Which among the following has the highest boiling point?",
+          "options": ["HF", "HCl", "HBr", "HI"],
+          "correctIndex": 0,
+          "explanation": "Hydrogen Fluoride (HF) forms extensive intermolecular hydrogen bonds, leading to an abnormally high boiling point compared to other hydrogen halides."
+        }
+      ]
+    },
+    {
+      "name": "Mathematics",
+      "positiveMarks": 4,
+      "negativeMarks": 1,
+      "questions": [
+        {
+          "id": "MATH-01",
+          "text": "If f(x) = ln(sin(x)), what is f'(x)?",
+          "options": ["cos(x)", "tan(x)", "cot(x)", "-cot(x)"],
+          "correctIndex": 2,
+          "explanation": "By chain rule, f'(x) = (1 / sin(x)) · cos(x) = cot(x)."
+        },
+        {
+          "id": "MATH-02",
+          "text": "What is the value of ∫ (from 0 to π/2) sin²(x) dx?",
+          "options": ["π/2", "π/4", "1", "1/2"],
+          "correctIndex": 1,
+          "explanation": "Using standard definite integral properties: ∫ (0 to π/2) sin²(x) dx = (1/2) · (π/2) = π/4."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+Section,Question,Option A,Option B,Option C,Option D,Correct Answer,Explanation
+Physics,What is the SI unit of electric charge?,Volt,Coulomb,Ohm,Tesla,B,The SI unit of electric charge is the Coulomb (C).
+Physics,What is the acceleration due to gravity on Earth?,9.8 m/s²,12.5 m/s²,5.0 m/s²,1.6 m/s²,A,Standard acceleration on Earth is approximately 9.8 m/s².
+Chemistry,What is the chemical formula of common table salt?,NaCl,KCl,CaCO3,MgSO4,A,Table salt is Sodium Chloride (NaCl).
+Chemistry,What is the pH of pure water at 25°C?,5,7,9,14,B,Pure neutral water has a pH of 7 at 25 degrees Celsius.
+Mathematics,Evaluate the determinant of matrix [[2, 3], [1, 4]]:,5,8,-5,11,A,Determinant = (2)(4) - (3)(1) = 8 - 3 = 5.
+Mathematics,What is the derivative of sin(x)?,cos(x),-cos(x),tan(x),-sin(x),A,The derivative of sin(x) with respect to x is cos(x).

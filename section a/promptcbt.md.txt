@@ -1,0 +1,99 @@
+You are an expert full-stack frontend engineer. Build a complete, production-grade, 100% offline Computer-Based Test (CBT) engine as a single, self-contained `index.html` file (containing embedded CSS inside `<style>` and vanilla JavaScript inside `<script>`). The application must run locally in any browser with zero network requests, zero dependencies, and no external CDNs so it functions completely offline[cite: 2, 6].
+
+---
+
+### Core Requirements & Layout
+
+1. **Design & Interface**:
+   - Modern, clean, high-contrast CBT interface modeled after authentic entrance examination platforms (like JEE Main or GATE)[cite: 6].
+   - **Header**: Test title, candidate identifier ("Candidate: Offline User"), current subject section badges, and a live prominent countdown timer (`MM:SS`) with auto-submit on expiry[cite: 6].
+   - **Main Area (Split Panel)**:
+     - **Left Panel (70% width)**: Active section title, positive/negative marking rules indicator (e.g., `+4 right, -1 wrong`), question number, question text, list of four option radio buttons, and the action toolbar[cite: 6]:
+       - `Save & Next` (saves option, updates palette to Answered, advances to next question)[cite: 6].
+       - `Clear Response` (clears selection, resets palette to Not Answered).
+       - `Mark for Review & Next` (flags question, updates palette to Review/Answered+Review, advances)[cite: 6].
+       - `Previous` and `Next` navigation buttons[cite: 6].
+     - **Right Panel (30% width)**:
+       - Candidate profile snapshot / summary box.
+       - Question Palette legend showing all standard color states[cite: 6]:
+         - Silver / Gray border: Not Visited
+         - Red: Not Answered
+         - Green: Answered
+         - Purple: Marked for Review[cite: 6]
+         - Purple with a Green dot: Answered & Marked for Review
+       - Interactive question grid: numbered buttons for each question in the current section[cite: 6]. Clicking any button jumps directly to that question[cite: 6].
+       - A prominent `Submit Test` button at the bottom.
+
+2. **File Loading & Dynamic Schema Ingestion**:
+   - Provide an initial setup screen or modal if no test is loaded, with[cite: 6]:
+     - An `<input type="file" accept=".json">` button to upload any custom test[cite: 6].
+     - A `"Load Sample 15-Question Exam"` button that instantly loads a built-in default 15-question test (Physics: 5 questions, Chemistry: 5 questions, Mathematics: 5 questions; +4 for correct, -1 for wrong, 15 minutes limit) so the app can be tested immediately without manual uploads[cite: 6].
+   - Any valid JSON matching the following schema must be supported without requiring any code edits[cite: 6]:
+     ```json
+     {
+       "testTitle": "Engineering & Science Mock Test",
+       "durationMinutes": 15,
+       "sections": [
+         {
+           "name": "Physics",
+           "positiveMarks": 4,
+           "negativeMarks": 1,
+           "questions": [
+             {
+               "id": "P1",
+               "text": "What is the SI unit of electric charge?",
+               "options": ["Volt", "Coulomb", "Ohm", "Tesla"],
+               "correctIndex": 1
+             }
+           ]
+         }
+       ]
+     }
+     ```
+
+3. **Countdown Timer & Auto-Submit**:
+   - Calculates time remaining based on `durationMinutes`[cite: 6].
+   - Decrements every second[cite: 6]. When remaining time is under 3 minutes, the timer flashes or turns amber/red.
+   - At `00:00`, it immediately freezes inputs, executes submission logic automatically, and navigates to the Result page[cite: 6].
+
+4. **Fault-Tolerant Persistence (`localStorage`) — "Refresh Loses Nothing"**:
+   - Store the complete state in `localStorage` under a dedicated key (`cbt_active_session`)[cite: 6]:
+     - Loaded test data[cite: 6]
+     - Current section index and current question index[cite: 6]
+     - Selected answers per question `{ [qId]: selectedIndex }`[cite: 6]
+     - Status per question (`'not-visited'`, `'not-answered'`, `'answered'`, `'review'`, `'answered-review'`)[cite: 6]
+     - Time spent per question in seconds `{ [qId]: elapsedSeconds }`[cite: 6]
+     - Exact timestamp and remaining seconds of the countdown timer[cite: 6]
+   - On every click, answer selection, button press, and tick of the timer, sync the state to `localStorage`[cite: 6].
+   - On page reload (`DOMContentLoaded`), check if an ongoing session exists in `localStorage`. If found, automatically restore the exact section, question, palette statuses, radio buttons, and timer down to the second[cite: 6].
+
+5. **Submission Modal & Score Engine**:
+   - Clicking `Submit Test` opens a modal dialog showing a summary table:
+     - Section Name | Total Questions | Answered | Not Answered | Marked for Review | Not Visited[cite: 6]
+     - "Are you sure you want to submit?" with `Cancel` and `Confirm Submit` buttons.
+   - When submitted (manually or via timer expiration)[cite: 6]:
+     - Lock and clear the active `localStorage` test session[cite: 6].
+     - Calculate strictly based on each section's marking scheme[cite: 6]:
+       - Correct: `+positiveMarks`[cite: 6]
+       - Incorrect: `-negativeMarks`[cite: 6]
+       - Unattempted / Not answered: `0 marks`
+       - Total Score = $\sum (\text{Correct} \times \text{Positive}) - \sum (\text{Incorrect} \times \text{Negative})$[cite: 6]
+       - Accuracy % = $(\text{Total Correct} / \text{Total Attempted}) \times 100$[cite: 6]
+
+6. **Comprehensive Result Page**:
+   - Replaces the test screen with a detailed analysis view[cite: 6]:
+     - **Scorecard banner**: Total Score, Maximum Marks, Total Attempted, Accuracy %, and Total Time Taken[cite: 6].
+     - **Section-wise performance table**: Subject | Total | Attempted | Correct | Incorrect | Marks Obtained[cite: 6].
+     - **Question-by-Question Detailed Review**:
+       - Displays every question text, time spent on that question, candidate's selected option, and the correct option[cite: 6].
+       - Highlights correct answers in green and incorrect/negative-marked answers in red.
+     - **Action Buttons**:
+       - `"Take Another Test"` (resets app to file load screen)[cite: 6].
+       - `"Print / Save Result"` (triggers `window.print()` formatted cleanly for A4 export).
+
+---
+
+### Acceptance Criteria Checklist
+- A refresh mid-test loses nothing, including the timer and selected answers[cite: 6].
+- The score matches the manual hand calculation for 15 questions with positive and negative marking[cite: 6].
+- A second question file loads and works immediately with zero code changes[cite: 6].
